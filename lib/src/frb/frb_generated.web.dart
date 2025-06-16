@@ -8,7 +8,7 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'execution_api.dart';
+import 'event_bridge.dart';
 import 'execution_types.dart';
 import 'frb_api.dart';
 import 'frb_generated.dart';
@@ -24,17 +24,20 @@ abstract class StepflowApiApiImplPlatform extends BaseApiImpl<StepflowApiWire> {
   });
 
   CrossPlatformFinalizerArg
-      get rust_arc_decrement_strong_count_ExecutionSqlxSvcPtr => wire
-          .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc;
+      get rust_arc_decrement_strong_count_FrbEventStreamPtr => wire
+          .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream;
 
   @protected
-  ExecutionSqlxSvc
-      dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
+  AnyhowException dco_decode_AnyhowException(dynamic raw);
+
+  @protected
+  FrbEventStream
+      dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
           dynamic raw);
 
   @protected
-  ExecutionSqlxSvc
-      dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
+  FrbEventStream
+      dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
           dynamic raw);
 
   @protected
@@ -98,13 +101,16 @@ abstract class StepflowApiApiImplPlatform extends BaseApiImpl<StepflowApiWire> {
   BigInt dco_decode_usize(dynamic raw);
 
   @protected
-  ExecutionSqlxSvc
-      sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
+  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+
+  @protected
+  FrbEventStream
+      sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
           SseDeserializer deserializer);
 
   @protected
-  ExecutionSqlxSvc
-      sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
+  FrbEventStream
+      sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
           SseDeserializer deserializer);
 
   @protected
@@ -180,14 +186,18 @@ abstract class StepflowApiApiImplPlatform extends BaseApiImpl<StepflowApiWire> {
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
-  void
-      sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
-          ExecutionSqlxSvc self, SseSerializer serializer);
+  void sse_encode_AnyhowException(
+      AnyhowException self, SseSerializer serializer);
 
   @protected
   void
-      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
-          ExecutionSqlxSvc self, SseSerializer serializer);
+      sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
+          FrbEventStream self, SseSerializer serializer);
+
+  @protected
+  void
+      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
+          FrbEventStream self, SseSerializer serializer);
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
@@ -271,16 +281,16 @@ abstract class StepflowApiApiImplPlatform extends BaseApiImpl<StepflowApiWire> {
 class StepflowApiWire implements BaseWire {
   StepflowApiWire.fromExternalLibrary(ExternalLibrary lib);
 
-  void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
+  void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
           int ptr) =>
       wasmModule
-          .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
+          .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
               ptr);
 
-  void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
+  void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
           int ptr) =>
       wasmModule
-          .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
+          .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
               ptr);
 }
 
@@ -291,10 +301,10 @@ external StepflowApiWasmModule get wasmModule;
 @anonymous
 extension type StepflowApiWasmModule._(JSObject _) implements JSObject {
   external void
-      rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
+      rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
           int ptr);
 
   external void
-      rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
+      rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
           int ptr);
 }

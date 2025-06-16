@@ -7,24 +7,27 @@ import 'execution_types.dart';
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-Future<FrbExecutionResult> startExecution(
+// These functions are ignored because they are not marked as `pub`: `get_execution_svc`
+
+Future<FrbExecutionResult> startExecutionRequest(
         {required FrbStartExecutionRequest req}) =>
-    StepflowApi.instance.api.crateFrbApiStartExecution(req: req);
+    StepflowApi.instance.api.crateFrbApiStartExecutionRequest(req: req);
 
-Future<FrbExecutionResult> getExecution({required String runId}) =>
-    StepflowApi.instance.api.crateFrbApiGetExecution(runId: runId);
+Future<FrbExecutionResult> getExecutionById({required String runId}) =>
+    StepflowApi.instance.api.crateFrbApiGetExecutionById(runId: runId);
 
-Future<List<FrbExecutionResult>> listExecutions(
+Future<List<FrbExecutionResult>> listExecutionsRequest(
         {required FrbListRequest req}) =>
-    StepflowApi.instance.api.crateFrbApiListExecutions(req: req);
+    StepflowApi.instance.api.crateFrbApiListExecutionsRequest(req: req);
 
-Future<void> updateExecution(
+Future<void> updateExecutionRequest(
         {required String runId, required FrbExecUpdateRequest req}) =>
-    StepflowApi.instance.api.crateFrbApiUpdateExecution(runId: runId, req: req);
+    StepflowApi.instance.api
+        .crateFrbApiUpdateExecutionRequest(runId: runId, req: req);
 
-Future<void> deleteExecution({required String runId}) =>
-    StepflowApi.instance.api.crateFrbApiDeleteExecution(runId: runId);
+Future<void> deleteExecutionRequest({required String runId}) =>
+    StepflowApi.instance.api.crateFrbApiDeleteExecutionRequest(runId: runId);
 
-Future<List<FrbExecutionResult>> listExecutionsByStatus(
+Future<List<FrbExecutionResult>> listExecutionsByStatusRequest(
         {required FrbListByStatusRequest req}) =>
-    StepflowApi.instance.api.crateFrbApiListExecutionsByStatus(req: req);
+    StepflowApi.instance.api.crateFrbApiListExecutionsByStatusRequest(req: req);

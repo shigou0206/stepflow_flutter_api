@@ -6,8 +6,4 @@
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-Future<void> initAppState({required String dbPath}) =>
-    StepflowApi.instance.api.crateInitInitAppState(dbPath: dbPath);
-
-Future<void> getExecutionSvc() =>
-    StepflowApi.instance.api.crateInitGetExecutionSvc();
+Future<void> initStepflow() => StepflowApi.instance.api.crateInitInitStepflow();

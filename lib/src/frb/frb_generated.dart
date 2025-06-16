@@ -5,7 +5,7 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'execution_api.dart';
+import 'event_bridge.dart';
 import 'execution_types.dart';
 import 'frb_api.dart';
 import 'frb_generated.dart';
@@ -70,7 +70,7 @@ class StepflowApi extends BaseEntrypoint<StepflowApiApi, StepflowApiApiImpl,
   String get codegenVersion => '2.9.0';
 
   @override
-  int get rustContentHash => -1070449999;
+  int get rustContentHash => -512427005;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -81,54 +81,35 @@ class StepflowApi extends BaseEntrypoint<StepflowApiApi, StepflowApiApiImpl,
 }
 
 abstract class StepflowApiApi extends BaseApi {
-  Future<void> crateFrbApiDeleteExecution({required String runId});
+  Future<FrbEventStream> crateEventBridgeFrbEventStreamNew();
 
-  Future<void> crateExecutionApiDeleteExecution(
-      {required ExecutionSqlxSvc svc, required String runId});
+  Future<void> crateFrbApiDeleteExecutionRequest({required String runId});
 
-  Future<FrbExecutionResult> crateFrbApiGetExecution({required String runId});
+  Future<FrbExecutionResult> crateFrbApiGetExecutionById(
+      {required String runId});
 
-  Future<FrbExecutionResult> crateExecutionApiGetExecution(
-      {required ExecutionSqlxSvc svc, required String runId});
+  Future<void> crateInitInitStepflow();
 
-  Future<void> crateInitGetExecutionSvc();
-
-  Future<void> crateInitInitAppState({required String dbPath});
-
-  Future<List<FrbExecutionResult>> crateFrbApiListExecutions(
-      {required FrbListRequest req});
-
-  Future<List<FrbExecutionResult>> crateFrbApiListExecutionsByStatus(
+  Future<List<FrbExecutionResult>> crateFrbApiListExecutionsByStatusRequest(
       {required FrbListByStatusRequest req});
 
-  Future<List<FrbExecutionResult>> crateExecutionApiListExecutions(
-      {required ExecutionSqlxSvc svc, required FrbListRequest req});
+  Future<List<FrbExecutionResult>> crateFrbApiListExecutionsRequest(
+      {required FrbListRequest req});
 
-  Future<List<FrbExecutionResult>> crateExecutionApiListExecutionsByStatus(
-      {required ExecutionSqlxSvc svc, required FrbListByStatusRequest req});
-
-  Future<FrbExecutionResult> crateFrbApiStartExecution(
+  Future<FrbExecutionResult> crateFrbApiStartExecutionRequest(
       {required FrbStartExecutionRequest req});
 
-  Future<FrbExecutionResult> crateExecutionApiStartExecution(
-      {required ExecutionSqlxSvc svc, required FrbStartExecutionRequest req});
-
-  Future<void> crateFrbApiUpdateExecution(
+  Future<void> crateFrbApiUpdateExecutionRequest(
       {required String runId, required FrbExecUpdateRequest req});
 
-  Future<void> crateExecutionApiUpdateExecution(
-      {required ExecutionSqlxSvc svc,
-      required String runId,
-      required FrbExecUpdateRequest req});
-
   RustArcIncrementStrongCountFnType
-      get rust_arc_increment_strong_count_ExecutionSqlxSvc;
+      get rust_arc_increment_strong_count_FrbEventStream;
 
   RustArcDecrementStrongCountFnType
-      get rust_arc_decrement_strong_count_ExecutionSqlxSvc;
+      get rust_arc_decrement_strong_count_FrbEventStream;
 
   CrossPlatformFinalizerArg
-      get rust_arc_decrement_strong_count_ExecutionSqlxSvcPtr;
+      get rust_arc_decrement_strong_count_FrbEventStreamPtr;
 }
 
 class StepflowApiApiImpl extends StepflowApiApiImplPlatform
@@ -141,37 +122,35 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   });
 
   @override
-  Future<void> crateFrbApiDeleteExecution({required String runId}) {
+  Future<FrbEventStream> crateEventBridgeFrbEventStreamNew() {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(runId, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 1, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_unit,
-        decodeErrorData: sse_decode_String,
+        decodeSuccessData:
+            sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream,
+        decodeErrorData: null,
       ),
-      constMeta: kCrateFrbApiDeleteExecutionConstMeta,
-      argValues: [runId],
+      constMeta: kCrateEventBridgeFrbEventStreamNewConstMeta,
+      argValues: [],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateFrbApiDeleteExecutionConstMeta => const TaskConstMeta(
-        debugName: "deleteExecution",
-        argNames: ["runId"],
+  TaskConstMeta get kCrateEventBridgeFrbEventStreamNewConstMeta =>
+      const TaskConstMeta(
+        debugName: "FrbEventStream_new",
+        argNames: [],
       );
 
   @override
-  Future<void> crateExecutionApiDeleteExecution(
-      {required ExecutionSqlxSvc svc, required String runId}) {
+  Future<void> crateFrbApiDeleteExecutionRequest({required String runId}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
-            svc, serializer);
         sse_encode_String(runId, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 2, port: port_);
@@ -180,20 +159,21 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
         decodeSuccessData: sse_decode_unit,
         decodeErrorData: sse_decode_String,
       ),
-      constMeta: kCrateExecutionApiDeleteExecutionConstMeta,
-      argValues: [svc, runId],
+      constMeta: kCrateFrbApiDeleteExecutionRequestConstMeta,
+      argValues: [runId],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateExecutionApiDeleteExecutionConstMeta =>
+  TaskConstMeta get kCrateFrbApiDeleteExecutionRequestConstMeta =>
       const TaskConstMeta(
-        debugName: "delete_execution",
-        argNames: ["svc", "runId"],
+        debugName: "delete_execution_request",
+        argNames: ["runId"],
       );
 
   @override
-  Future<FrbExecutionResult> crateFrbApiGetExecution({required String runId}) {
+  Future<FrbExecutionResult> crateFrbApiGetExecutionById(
+      {required String runId}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
@@ -205,254 +185,121 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
         decodeSuccessData: sse_decode_frb_execution_result,
         decodeErrorData: sse_decode_String,
       ),
-      constMeta: kCrateFrbApiGetExecutionConstMeta,
+      constMeta: kCrateFrbApiGetExecutionByIdConstMeta,
       argValues: [runId],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateFrbApiGetExecutionConstMeta => const TaskConstMeta(
-        debugName: "getExecution",
+  TaskConstMeta get kCrateFrbApiGetExecutionByIdConstMeta =>
+      const TaskConstMeta(
+        debugName: "get_execution_by_id",
         argNames: ["runId"],
       );
 
   @override
-  Future<FrbExecutionResult> crateExecutionApiGetExecution(
-      {required ExecutionSqlxSvc svc, required String runId}) {
+  Future<void> crateInitInitStepflow() {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
-            svc, serializer);
-        sse_encode_String(runId, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 4, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_frb_execution_result,
-        decodeErrorData: sse_decode_String,
-      ),
-      constMeta: kCrateExecutionApiGetExecutionConstMeta,
-      argValues: [svc, runId],
-      apiImpl: this,
-    ));
-  }
-
-  TaskConstMeta get kCrateExecutionApiGetExecutionConstMeta =>
-      const TaskConstMeta(
-        debugName: "get_execution",
-        argNames: ["svc", "runId"],
-      );
-
-  @override
-  Future<void> crateInitGetExecutionSvc() {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 5, port: port_);
-      },
-      codec: SseCodec(
         decodeSuccessData: sse_decode_unit,
-        decodeErrorData: null,
+        decodeErrorData: sse_decode_AnyhowException,
       ),
-      constMeta: kCrateInitGetExecutionSvcConstMeta,
+      constMeta: kCrateInitInitStepflowConstMeta,
       argValues: [],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateInitGetExecutionSvcConstMeta => const TaskConstMeta(
-        debugName: "get_execution_svc",
+  TaskConstMeta get kCrateInitInitStepflowConstMeta => const TaskConstMeta(
+        debugName: "init_stepflow",
         argNames: [],
       );
 
   @override
-  Future<void> crateInitInitAppState({required String dbPath}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(dbPath, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 6, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_unit,
-        decodeErrorData: null,
-      ),
-      constMeta: kCrateInitInitAppStateConstMeta,
-      argValues: [dbPath],
-      apiImpl: this,
-    ));
-  }
-
-  TaskConstMeta get kCrateInitInitAppStateConstMeta => const TaskConstMeta(
-        debugName: "init_app_state",
-        argNames: ["dbPath"],
-      );
-
-  @override
-  Future<List<FrbExecutionResult>> crateFrbApiListExecutions(
-      {required FrbListRequest req}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_box_autoadd_frb_list_request(req, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 7, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_list_frb_execution_result,
-        decodeErrorData: sse_decode_String,
-      ),
-      constMeta: kCrateFrbApiListExecutionsConstMeta,
-      argValues: [req],
-      apiImpl: this,
-    ));
-  }
-
-  TaskConstMeta get kCrateFrbApiListExecutionsConstMeta => const TaskConstMeta(
-        debugName: "listExecutions",
-        argNames: ["req"],
-      );
-
-  @override
-  Future<List<FrbExecutionResult>> crateFrbApiListExecutionsByStatus(
+  Future<List<FrbExecutionResult>> crateFrbApiListExecutionsByStatusRequest(
       {required FrbListByStatusRequest req}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_box_autoadd_frb_list_by_status_request(req, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 8, port: port_);
+            funcId: 5, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_list_frb_execution_result,
         decodeErrorData: sse_decode_String,
       ),
-      constMeta: kCrateFrbApiListExecutionsByStatusConstMeta,
+      constMeta: kCrateFrbApiListExecutionsByStatusRequestConstMeta,
       argValues: [req],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateFrbApiListExecutionsByStatusConstMeta =>
+  TaskConstMeta get kCrateFrbApiListExecutionsByStatusRequestConstMeta =>
       const TaskConstMeta(
-        debugName: "listExecutionsByStatus",
+        debugName: "list_executions_by_status_request",
         argNames: ["req"],
       );
 
   @override
-  Future<List<FrbExecutionResult>> crateExecutionApiListExecutions(
-      {required ExecutionSqlxSvc svc, required FrbListRequest req}) {
+  Future<List<FrbExecutionResult>> crateFrbApiListExecutionsRequest(
+      {required FrbListRequest req}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
-            svc, serializer);
         sse_encode_box_autoadd_frb_list_request(req, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 9, port: port_);
+            funcId: 6, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_list_frb_execution_result,
         decodeErrorData: sse_decode_String,
       ),
-      constMeta: kCrateExecutionApiListExecutionsConstMeta,
-      argValues: [svc, req],
+      constMeta: kCrateFrbApiListExecutionsRequestConstMeta,
+      argValues: [req],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateExecutionApiListExecutionsConstMeta =>
+  TaskConstMeta get kCrateFrbApiListExecutionsRequestConstMeta =>
       const TaskConstMeta(
-        debugName: "list_executions",
-        argNames: ["svc", "req"],
+        debugName: "list_executions_request",
+        argNames: ["req"],
       );
 
   @override
-  Future<List<FrbExecutionResult>> crateExecutionApiListExecutionsByStatus(
-      {required ExecutionSqlxSvc svc, required FrbListByStatusRequest req}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
-            svc, serializer);
-        sse_encode_box_autoadd_frb_list_by_status_request(req, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 10, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_list_frb_execution_result,
-        decodeErrorData: sse_decode_String,
-      ),
-      constMeta: kCrateExecutionApiListExecutionsByStatusConstMeta,
-      argValues: [svc, req],
-      apiImpl: this,
-    ));
-  }
-
-  TaskConstMeta get kCrateExecutionApiListExecutionsByStatusConstMeta =>
-      const TaskConstMeta(
-        debugName: "list_executions_by_status",
-        argNames: ["svc", "req"],
-      );
-
-  @override
-  Future<FrbExecutionResult> crateFrbApiStartExecution(
+  Future<FrbExecutionResult> crateFrbApiStartExecutionRequest(
       {required FrbStartExecutionRequest req}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_box_autoadd_frb_start_execution_request(req, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 11, port: port_);
+            funcId: 7, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_frb_execution_result,
         decodeErrorData: sse_decode_String,
       ),
-      constMeta: kCrateFrbApiStartExecutionConstMeta,
+      constMeta: kCrateFrbApiStartExecutionRequestConstMeta,
       argValues: [req],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateFrbApiStartExecutionConstMeta => const TaskConstMeta(
-        debugName: "startExecution",
+  TaskConstMeta get kCrateFrbApiStartExecutionRequestConstMeta =>
+      const TaskConstMeta(
+        debugName: "start_execution_request",
         argNames: ["req"],
       );
 
   @override
-  Future<FrbExecutionResult> crateExecutionApiStartExecution(
-      {required ExecutionSqlxSvc svc, required FrbStartExecutionRequest req}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
-            svc, serializer);
-        sse_encode_box_autoadd_frb_start_execution_request(req, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 12, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_frb_execution_result,
-        decodeErrorData: sse_decode_String,
-      ),
-      constMeta: kCrateExecutionApiStartExecutionConstMeta,
-      argValues: [svc, req],
-      apiImpl: this,
-    ));
-  }
-
-  TaskConstMeta get kCrateExecutionApiStartExecutionConstMeta =>
-      const TaskConstMeta(
-        debugName: "start_execution",
-        argNames: ["svc", "req"],
-      );
-
-  @override
-  Future<void> crateFrbApiUpdateExecution(
+  Future<void> crateFrbApiUpdateExecutionRequest(
       {required String runId, required FrbExecUpdateRequest req}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
@@ -460,76 +307,52 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
         sse_encode_String(runId, serializer);
         sse_encode_box_autoadd_frb_exec_update_request(req, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 13, port: port_);
+            funcId: 8, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_unit,
         decodeErrorData: sse_decode_String,
       ),
-      constMeta: kCrateFrbApiUpdateExecutionConstMeta,
+      constMeta: kCrateFrbApiUpdateExecutionRequestConstMeta,
       argValues: [runId, req],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateFrbApiUpdateExecutionConstMeta => const TaskConstMeta(
-        debugName: "updateExecution",
+  TaskConstMeta get kCrateFrbApiUpdateExecutionRequestConstMeta =>
+      const TaskConstMeta(
+        debugName: "update_execution_request",
         argNames: ["runId", "req"],
       );
 
-  @override
-  Future<void> crateExecutionApiUpdateExecution(
-      {required ExecutionSqlxSvc svc,
-      required String runId,
-      required FrbExecUpdateRequest req}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
-            svc, serializer);
-        sse_encode_String(runId, serializer);
-        sse_encode_box_autoadd_frb_exec_update_request(req, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 14, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_unit,
-        decodeErrorData: sse_decode_String,
-      ),
-      constMeta: kCrateExecutionApiUpdateExecutionConstMeta,
-      argValues: [svc, runId, req],
-      apiImpl: this,
-    ));
-  }
-
-  TaskConstMeta get kCrateExecutionApiUpdateExecutionConstMeta =>
-      const TaskConstMeta(
-        debugName: "update_execution",
-        argNames: ["svc", "runId", "req"],
-      );
-
   RustArcIncrementStrongCountFnType
-      get rust_arc_increment_strong_count_ExecutionSqlxSvc => wire
-          .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc;
+      get rust_arc_increment_strong_count_FrbEventStream => wire
+          .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream;
 
   RustArcDecrementStrongCountFnType
-      get rust_arc_decrement_strong_count_ExecutionSqlxSvc => wire
-          .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc;
+      get rust_arc_decrement_strong_count_FrbEventStream => wire
+          .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream;
 
   @protected
-  ExecutionSqlxSvc
-      dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
-          dynamic raw) {
+  AnyhowException dco_decode_AnyhowException(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return ExecutionSqlxSvcImpl.frbInternalDcoDecode(raw as List<dynamic>);
+    return AnyhowException(raw as String);
   }
 
   @protected
-  ExecutionSqlxSvc
-      dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
+  FrbEventStream
+      dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
           dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return ExecutionSqlxSvcImpl.frbInternalDcoDecode(raw as List<dynamic>);
+    return FrbEventStreamImpl.frbInternalDcoDecode(raw as List<dynamic>);
+  }
+
+  @protected
+  FrbEventStream
+      dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
+          dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return FrbEventStreamImpl.frbInternalDcoDecode(raw as List<dynamic>);
   }
 
   @protected
@@ -687,20 +510,27 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
-  ExecutionSqlxSvc
-      sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
+  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_String(deserializer);
+    return AnyhowException(inner);
+  }
+
+  @protected
+  FrbEventStream
+      sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
           SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return ExecutionSqlxSvcImpl.frbInternalSseDecode(
+    return FrbEventStreamImpl.frbInternalSseDecode(
         sse_decode_usize(deserializer), sse_decode_i_32(deserializer));
   }
 
   @protected
-  ExecutionSqlxSvc
-      sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
+  FrbEventStream
+      sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
           SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return ExecutionSqlxSvcImpl.frbInternalSseDecode(
+    return FrbEventStreamImpl.frbInternalSseDecode(
         sse_decode_usize(deserializer), sse_decode_i_32(deserializer));
   }
 
@@ -885,22 +715,29 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
+  void sse_encode_AnyhowException(
+      AnyhowException self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.message, serializer);
+  }
+
+  @protected
   void
-      sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
-          ExecutionSqlxSvc self, SseSerializer serializer) {
+      sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
+          FrbEventStream self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(
-        (self as ExecutionSqlxSvcImpl).frbInternalSseEncode(move: false),
+        (self as FrbEventStreamImpl).frbInternalSseEncode(move: true),
         serializer);
   }
 
   @protected
   void
-      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerExecutionSqlxSvc(
-          ExecutionSqlxSvc self, SseSerializer serializer) {
+      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
+          FrbEventStream self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(
-        (self as ExecutionSqlxSvcImpl).frbInternalSseEncode(move: null),
+        (self as FrbEventStreamImpl).frbInternalSseEncode(move: null),
         serializer);
   }
 
@@ -1068,22 +905,21 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
 }
 
 @sealed
-class ExecutionSqlxSvcImpl extends RustOpaque implements ExecutionSqlxSvc {
+class FrbEventStreamImpl extends RustOpaque implements FrbEventStream {
   // Not to be used by end users
-  ExecutionSqlxSvcImpl.frbInternalDcoDecode(List<dynamic> wire)
+  FrbEventStreamImpl.frbInternalDcoDecode(List<dynamic> wire)
       : super.frbInternalDcoDecode(wire, _kStaticData);
 
   // Not to be used by end users
-  ExecutionSqlxSvcImpl.frbInternalSseDecode(
-      BigInt ptr, int externalSizeOnNative)
+  FrbEventStreamImpl.frbInternalSseDecode(BigInt ptr, int externalSizeOnNative)
       : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
 
   static final _kStaticData = RustArcStaticData(
-    rustArcIncrementStrongCount: StepflowApi
-        .instance.api.rust_arc_increment_strong_count_ExecutionSqlxSvc,
-    rustArcDecrementStrongCount: StepflowApi
-        .instance.api.rust_arc_decrement_strong_count_ExecutionSqlxSvc,
+    rustArcIncrementStrongCount:
+        StepflowApi.instance.api.rust_arc_increment_strong_count_FrbEventStream,
+    rustArcDecrementStrongCount:
+        StepflowApi.instance.api.rust_arc_decrement_strong_count_FrbEventStream,
     rustArcDecrementStrongCountPtr: StepflowApi
-        .instance.api.rust_arc_decrement_strong_count_ExecutionSqlxSvcPtr,
+        .instance.api.rust_arc_decrement_strong_count_FrbEventStreamPtr,
   );
 }
