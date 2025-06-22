@@ -6,9 +6,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi' as ffi;
-import 'event_bridge.dart';
-import 'execution_types.dart';
-import 'frb_api.dart';
+import 'frb_apis/event_stream.dart';
+import 'frb_apis/execution_api.dart';
+import 'frb_dto/frb_engine_event.dart';
+import 'frb_dto/frb_event_envelope.dart';
+import 'frb_dto/frb_execution.dart';
 import 'frb_generated.dart';
 import 'init.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
@@ -21,64 +23,60 @@ abstract class StepflowApiApiImplPlatform extends BaseApiImpl<StepflowApiWire> {
     required super.portManager,
   });
 
-  CrossPlatformFinalizerArg
-      get rust_arc_decrement_strong_count_FrbEventStreamPtr => wire
-          ._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStreamPtr;
-
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
-  FrbEventStream
-      dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-          dynamic raw);
-
-  @protected
-  FrbEventStream
-      dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-          dynamic raw);
+  RustStreamSink<FrbEventEnvelope> dco_decode_StreamSink_frb_event_envelope_Sse(
+      dynamic raw);
 
   @protected
   String dco_decode_String(dynamic raw);
 
   @protected
-  FrbExecUpdateRequest dco_decode_box_autoadd_frb_exec_update_request(
-      dynamic raw);
+  FrbExecStart dco_decode_box_autoadd_frb_exec_start(dynamic raw);
 
   @protected
-  FrbListByStatusRequest dco_decode_box_autoadd_frb_list_by_status_request(
-      dynamic raw);
+  FrbExecUpdate dco_decode_box_autoadd_frb_exec_update(dynamic raw);
 
   @protected
-  FrbListRequest dco_decode_box_autoadd_frb_list_request(dynamic raw);
+  FrbPage dco_decode_box_autoadd_frb_page(dynamic raw);
 
   @protected
-  FrbStartExecutionRequest dco_decode_box_autoadd_frb_start_execution_request(
-      dynamic raw);
+  FrbStatusPage dco_decode_box_autoadd_frb_status_page(dynamic raw);
 
   @protected
   PlatformInt64 dco_decode_box_autoadd_i_64(dynamic raw);
 
   @protected
-  FrbExecUpdateRequest dco_decode_frb_exec_update_request(dynamic raw);
+  BigInt dco_decode_box_autoadd_u_64(dynamic raw);
 
   @protected
-  FrbExecutionResult dco_decode_frb_execution_result(dynamic raw);
+  FrbEngineEvent dco_decode_frb_engine_event(dynamic raw);
 
   @protected
-  FrbListByStatusRequest dco_decode_frb_list_by_status_request(dynamic raw);
+  FrbEventEnvelope dco_decode_frb_event_envelope(dynamic raw);
 
   @protected
-  FrbListRequest dco_decode_frb_list_request(dynamic raw);
+  FrbExecDto dco_decode_frb_exec_dto(dynamic raw);
 
   @protected
-  FrbStartExecutionRequest dco_decode_frb_start_execution_request(dynamic raw);
+  FrbExecStart dco_decode_frb_exec_start(dynamic raw);
+
+  @protected
+  FrbExecUpdate dco_decode_frb_exec_update(dynamic raw);
+
+  @protected
+  FrbPage dco_decode_frb_page(dynamic raw);
+
+  @protected
+  FrbStatusPage dco_decode_frb_status_page(dynamic raw);
 
   @protected
   PlatformInt64 dco_decode_i_64(dynamic raw);
 
   @protected
-  List<FrbExecutionResult> dco_decode_list_frb_execution_result(dynamic raw);
+  List<FrbExecDto> dco_decode_list_frb_exec_dto(dynamic raw);
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
@@ -90,74 +88,74 @@ abstract class StepflowApiApiImplPlatform extends BaseApiImpl<StepflowApiWire> {
   PlatformInt64? dco_decode_opt_box_autoadd_i_64(dynamic raw);
 
   @protected
+  BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
+
+  @protected
+  BigInt dco_decode_u_64(dynamic raw);
+
+  @protected
   int dco_decode_u_8(dynamic raw);
 
   @protected
   void dco_decode_unit(dynamic raw);
 
   @protected
-  BigInt dco_decode_usize(dynamic raw);
-
-  @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
-  FrbEventStream
-      sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-          SseDeserializer deserializer);
-
-  @protected
-  FrbEventStream
-      sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-          SseDeserializer deserializer);
+  RustStreamSink<FrbEventEnvelope> sse_decode_StreamSink_frb_event_envelope_Sse(
+      SseDeserializer deserializer);
 
   @protected
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
-  FrbExecUpdateRequest sse_decode_box_autoadd_frb_exec_update_request(
+  FrbExecStart sse_decode_box_autoadd_frb_exec_start(
       SseDeserializer deserializer);
 
   @protected
-  FrbListByStatusRequest sse_decode_box_autoadd_frb_list_by_status_request(
+  FrbExecUpdate sse_decode_box_autoadd_frb_exec_update(
       SseDeserializer deserializer);
 
   @protected
-  FrbListRequest sse_decode_box_autoadd_frb_list_request(
-      SseDeserializer deserializer);
+  FrbPage sse_decode_box_autoadd_frb_page(SseDeserializer deserializer);
 
   @protected
-  FrbStartExecutionRequest sse_decode_box_autoadd_frb_start_execution_request(
+  FrbStatusPage sse_decode_box_autoadd_frb_status_page(
       SseDeserializer deserializer);
 
   @protected
   PlatformInt64 sse_decode_box_autoadd_i_64(SseDeserializer deserializer);
 
   @protected
-  FrbExecUpdateRequest sse_decode_frb_exec_update_request(
-      SseDeserializer deserializer);
+  BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
-  FrbExecutionResult sse_decode_frb_execution_result(
-      SseDeserializer deserializer);
+  FrbEngineEvent sse_decode_frb_engine_event(SseDeserializer deserializer);
 
   @protected
-  FrbListByStatusRequest sse_decode_frb_list_by_status_request(
-      SseDeserializer deserializer);
+  FrbEventEnvelope sse_decode_frb_event_envelope(SseDeserializer deserializer);
 
   @protected
-  FrbListRequest sse_decode_frb_list_request(SseDeserializer deserializer);
+  FrbExecDto sse_decode_frb_exec_dto(SseDeserializer deserializer);
 
   @protected
-  FrbStartExecutionRequest sse_decode_frb_start_execution_request(
-      SseDeserializer deserializer);
+  FrbExecStart sse_decode_frb_exec_start(SseDeserializer deserializer);
+
+  @protected
+  FrbExecUpdate sse_decode_frb_exec_update(SseDeserializer deserializer);
+
+  @protected
+  FrbPage sse_decode_frb_page(SseDeserializer deserializer);
+
+  @protected
+  FrbStatusPage sse_decode_frb_status_page(SseDeserializer deserializer);
 
   @protected
   PlatformInt64 sse_decode_i_64(SseDeserializer deserializer);
 
   @protected
-  List<FrbExecutionResult> sse_decode_list_frb_execution_result(
-      SseDeserializer deserializer);
+  List<FrbExecDto> sse_decode_list_frb_exec_dto(SseDeserializer deserializer);
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
@@ -169,13 +167,16 @@ abstract class StepflowApiApiImplPlatform extends BaseApiImpl<StepflowApiWire> {
   PlatformInt64? sse_decode_opt_box_autoadd_i_64(SseDeserializer deserializer);
 
   @protected
+  BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
+
+  @protected
+  BigInt sse_decode_u_64(SseDeserializer deserializer);
+
+  @protected
   int sse_decode_u_8(SseDeserializer deserializer);
 
   @protected
   void sse_decode_unit(SseDeserializer deserializer);
-
-  @protected
-  BigInt sse_decode_usize(SseDeserializer deserializer);
 
   @protected
   int sse_decode_i_32(SseDeserializer deserializer);
@@ -188,64 +189,63 @@ abstract class StepflowApiApiImplPlatform extends BaseApiImpl<StepflowApiWire> {
       AnyhowException self, SseSerializer serializer);
 
   @protected
-  void
-      sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-          FrbEventStream self, SseSerializer serializer);
-
-  @protected
-  void
-      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-          FrbEventStream self, SseSerializer serializer);
+  void sse_encode_StreamSink_frb_event_envelope_Sse(
+      RustStreamSink<FrbEventEnvelope> self, SseSerializer serializer);
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_frb_exec_update_request(
-      FrbExecUpdateRequest self, SseSerializer serializer);
+  void sse_encode_box_autoadd_frb_exec_start(
+      FrbExecStart self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_frb_list_by_status_request(
-      FrbListByStatusRequest self, SseSerializer serializer);
+  void sse_encode_box_autoadd_frb_exec_update(
+      FrbExecUpdate self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_frb_list_request(
-      FrbListRequest self, SseSerializer serializer);
+  void sse_encode_box_autoadd_frb_page(FrbPage self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_frb_start_execution_request(
-      FrbStartExecutionRequest self, SseSerializer serializer);
+  void sse_encode_box_autoadd_frb_status_page(
+      FrbStatusPage self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_i_64(
       PlatformInt64 self, SseSerializer serializer);
 
   @protected
-  void sse_encode_frb_exec_update_request(
-      FrbExecUpdateRequest self, SseSerializer serializer);
+  void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
 
   @protected
-  void sse_encode_frb_execution_result(
-      FrbExecutionResult self, SseSerializer serializer);
+  void sse_encode_frb_engine_event(
+      FrbEngineEvent self, SseSerializer serializer);
 
   @protected
-  void sse_encode_frb_list_by_status_request(
-      FrbListByStatusRequest self, SseSerializer serializer);
+  void sse_encode_frb_event_envelope(
+      FrbEventEnvelope self, SseSerializer serializer);
 
   @protected
-  void sse_encode_frb_list_request(
-      FrbListRequest self, SseSerializer serializer);
+  void sse_encode_frb_exec_dto(FrbExecDto self, SseSerializer serializer);
 
   @protected
-  void sse_encode_frb_start_execution_request(
-      FrbStartExecutionRequest self, SseSerializer serializer);
+  void sse_encode_frb_exec_start(FrbExecStart self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_frb_exec_update(FrbExecUpdate self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_frb_page(FrbPage self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_frb_status_page(FrbStatusPage self, SseSerializer serializer);
 
   @protected
   void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_frb_execution_result(
-      List<FrbExecutionResult> self, SseSerializer serializer);
+  void sse_encode_list_frb_exec_dto(
+      List<FrbExecDto> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_prim_u_8_strict(
@@ -259,13 +259,16 @@ abstract class StepflowApiApiImplPlatform extends BaseApiImpl<StepflowApiWire> {
       PlatformInt64? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_u_64(BigInt self, SseSerializer serializer);
+
+  @protected
   void sse_encode_u_8(int self, SseSerializer serializer);
 
   @protected
   void sse_encode_unit(void self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_usize(BigInt self, SseSerializer serializer);
 
   @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
@@ -287,36 +290,4 @@ class StepflowApiWire implements BaseWire {
   /// The symbols are looked up in [dynamicLibrary].
   StepflowApiWire(ffi.DynamicLibrary dynamicLibrary)
       : _lookup = dynamicLibrary.lookup;
-
-  void
-      rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStreamPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'frbgen_stepflow_flutter_api_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream');
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream =
-      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStreamPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-      rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStreamPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'frbgen_stepflow_flutter_api_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream');
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream =
-      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStreamPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 }

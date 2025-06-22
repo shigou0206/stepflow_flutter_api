@@ -5,9 +5,11 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'event_bridge.dart';
-import 'execution_types.dart';
-import 'frb_api.dart';
+import 'frb_apis/event_stream.dart';
+import 'frb_apis/execution_api.dart';
+import 'frb_dto/frb_engine_event.dart';
+import 'frb_dto/frb_event_envelope.dart';
+import 'frb_dto/frb_execution.dart';
 import 'frb_generated.dart';
 import 'frb_generated.io.dart'
     if (dart.library.js_interop) 'frb_generated.web.dart';
@@ -70,7 +72,7 @@ class StepflowApi extends BaseEntrypoint<StepflowApiApi, StepflowApiApiImpl,
   String get codegenVersion => '2.9.0';
 
   @override
-  int get rustContentHash => -512427005;
+  int get rustContentHash => 1695204589;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -81,35 +83,26 @@ class StepflowApi extends BaseEntrypoint<StepflowApiApi, StepflowApiApiImpl,
 }
 
 abstract class StepflowApiApi extends BaseApi {
-  Future<FrbEventStream> crateEventBridgeFrbEventStreamNew();
+  Future<void> crateFrbApisExecutionApiDeleteExecution({required String runId});
 
-  Future<void> crateFrbApiDeleteExecutionRequest({required String runId});
-
-  Future<FrbExecutionResult> crateFrbApiGetExecutionById(
+  Future<FrbExecDto> crateFrbApisExecutionApiGetExecutionById(
       {required String runId});
 
   Future<void> crateInitInitStepflow();
 
-  Future<List<FrbExecutionResult>> crateFrbApiListExecutionsByStatusRequest(
-      {required FrbListByStatusRequest req});
+  Future<List<FrbExecDto>> crateFrbApisExecutionApiListExecutions(
+      {required FrbPage req});
 
-  Future<List<FrbExecutionResult>> crateFrbApiListExecutionsRequest(
-      {required FrbListRequest req});
+  Future<List<FrbExecDto>> crateFrbApisExecutionApiListExecutionsByStatus(
+      {required FrbStatusPage req});
 
-  Future<FrbExecutionResult> crateFrbApiStartExecutionRequest(
-      {required FrbStartExecutionRequest req});
+  Stream<FrbEventEnvelope> crateFrbApisEventStreamStartEventStream();
 
-  Future<void> crateFrbApiUpdateExecutionRequest(
-      {required String runId, required FrbExecUpdateRequest req});
+  Future<FrbExecDto> crateFrbApisExecutionApiStartExecution(
+      {required FrbExecStart req});
 
-  RustArcIncrementStrongCountFnType
-      get rust_arc_increment_strong_count_FrbEventStream;
-
-  RustArcDecrementStrongCountFnType
-      get rust_arc_decrement_strong_count_FrbEventStream;
-
-  CrossPlatformFinalizerArg
-      get rust_arc_decrement_strong_count_FrbEventStreamPtr;
+  Future<FrbExecDto> crateFrbApisExecutionApiUpdateExecution(
+      {required String runId, required FrbExecUpdate req});
 }
 
 class StepflowApiApiImpl extends StepflowApiApiImplPlatform
@@ -122,32 +115,34 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   });
 
   @override
-  Future<FrbEventStream> crateEventBridgeFrbEventStreamNew() {
+  Future<void> crateFrbApisExecutionApiDeleteExecution(
+      {required String runId}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(runId, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 1, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData:
-            sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream,
-        decodeErrorData: null,
+        decodeSuccessData: sse_decode_unit,
+        decodeErrorData: sse_decode_String,
       ),
-      constMeta: kCrateEventBridgeFrbEventStreamNewConstMeta,
-      argValues: [],
+      constMeta: kCrateFrbApisExecutionApiDeleteExecutionConstMeta,
+      argValues: [runId],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateEventBridgeFrbEventStreamNewConstMeta =>
+  TaskConstMeta get kCrateFrbApisExecutionApiDeleteExecutionConstMeta =>
       const TaskConstMeta(
-        debugName: "FrbEventStream_new",
-        argNames: [],
+        debugName: "delete_execution",
+        argNames: ["runId"],
       );
 
   @override
-  Future<void> crateFrbApiDeleteExecutionRequest({required String runId}) {
+  Future<FrbExecDto> crateFrbApisExecutionApiGetExecutionById(
+      {required String runId}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
@@ -156,42 +151,16 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
             funcId: 2, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_unit,
+        decodeSuccessData: sse_decode_frb_exec_dto,
         decodeErrorData: sse_decode_String,
       ),
-      constMeta: kCrateFrbApiDeleteExecutionRequestConstMeta,
+      constMeta: kCrateFrbApisExecutionApiGetExecutionByIdConstMeta,
       argValues: [runId],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateFrbApiDeleteExecutionRequestConstMeta =>
-      const TaskConstMeta(
-        debugName: "delete_execution_request",
-        argNames: ["runId"],
-      );
-
-  @override
-  Future<FrbExecutionResult> crateFrbApiGetExecutionById(
-      {required String runId}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(runId, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 3, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_frb_execution_result,
-        decodeErrorData: sse_decode_String,
-      ),
-      constMeta: kCrateFrbApiGetExecutionByIdConstMeta,
-      argValues: [runId],
-      apiImpl: this,
-    ));
-  }
-
-  TaskConstMeta get kCrateFrbApiGetExecutionByIdConstMeta =>
+  TaskConstMeta get kCrateFrbApisExecutionApiGetExecutionByIdConstMeta =>
       const TaskConstMeta(
         debugName: "get_execution_by_id",
         argNames: ["runId"],
@@ -203,7 +172,7 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 4, port: port_);
+            funcId: 3, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_unit,
@@ -221,117 +190,136 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
       );
 
   @override
-  Future<List<FrbExecutionResult>> crateFrbApiListExecutionsByStatusRequest(
-      {required FrbListByStatusRequest req}) {
+  Future<List<FrbExecDto>> crateFrbApisExecutionApiListExecutions(
+      {required FrbPage req}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_box_autoadd_frb_list_by_status_request(req, serializer);
+        sse_encode_box_autoadd_frb_page(req, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 4, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_list_frb_exec_dto,
+        decodeErrorData: sse_decode_String,
+      ),
+      constMeta: kCrateFrbApisExecutionApiListExecutionsConstMeta,
+      argValues: [req],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateFrbApisExecutionApiListExecutionsConstMeta =>
+      const TaskConstMeta(
+        debugName: "list_executions",
+        argNames: ["req"],
+      );
+
+  @override
+  Future<List<FrbExecDto>> crateFrbApisExecutionApiListExecutionsByStatus(
+      {required FrbStatusPage req}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_box_autoadd_frb_status_page(req, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 5, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_list_frb_execution_result,
+        decodeSuccessData: sse_decode_list_frb_exec_dto,
         decodeErrorData: sse_decode_String,
       ),
-      constMeta: kCrateFrbApiListExecutionsByStatusRequestConstMeta,
+      constMeta: kCrateFrbApisExecutionApiListExecutionsByStatusConstMeta,
       argValues: [req],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateFrbApiListExecutionsByStatusRequestConstMeta =>
+  TaskConstMeta get kCrateFrbApisExecutionApiListExecutionsByStatusConstMeta =>
       const TaskConstMeta(
-        debugName: "list_executions_by_status_request",
+        debugName: "list_executions_by_status",
         argNames: ["req"],
       );
 
   @override
-  Future<List<FrbExecutionResult>> crateFrbApiListExecutionsRequest(
-      {required FrbListRequest req}) {
-    return handler.executeNormal(NormalTask(
+  Stream<FrbEventEnvelope> crateFrbApisEventStreamStartEventStream() {
+    final sink = RustStreamSink<FrbEventEnvelope>();
+    unawaited(handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_box_autoadd_frb_list_request(req, serializer);
+        sse_encode_StreamSink_frb_event_envelope_Sse(sink, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 6, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_list_frb_execution_result,
-        decodeErrorData: sse_decode_String,
+        decodeSuccessData: sse_decode_unit,
+        decodeErrorData: null,
       ),
-      constMeta: kCrateFrbApiListExecutionsRequestConstMeta,
-      argValues: [req],
+      constMeta: kCrateFrbApisEventStreamStartEventStreamConstMeta,
+      argValues: [sink],
       apiImpl: this,
-    ));
+    )));
+    return sink.stream;
   }
 
-  TaskConstMeta get kCrateFrbApiListExecutionsRequestConstMeta =>
+  TaskConstMeta get kCrateFrbApisEventStreamStartEventStreamConstMeta =>
       const TaskConstMeta(
-        debugName: "list_executions_request",
-        argNames: ["req"],
+        debugName: "start_event_stream",
+        argNames: ["sink"],
       );
 
   @override
-  Future<FrbExecutionResult> crateFrbApiStartExecutionRequest(
-      {required FrbStartExecutionRequest req}) {
+  Future<FrbExecDto> crateFrbApisExecutionApiStartExecution(
+      {required FrbExecStart req}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_box_autoadd_frb_start_execution_request(req, serializer);
+        sse_encode_box_autoadd_frb_exec_start(req, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 7, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_frb_execution_result,
+        decodeSuccessData: sse_decode_frb_exec_dto,
         decodeErrorData: sse_decode_String,
       ),
-      constMeta: kCrateFrbApiStartExecutionRequestConstMeta,
+      constMeta: kCrateFrbApisExecutionApiStartExecutionConstMeta,
       argValues: [req],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateFrbApiStartExecutionRequestConstMeta =>
+  TaskConstMeta get kCrateFrbApisExecutionApiStartExecutionConstMeta =>
       const TaskConstMeta(
-        debugName: "start_execution_request",
+        debugName: "start_execution",
         argNames: ["req"],
       );
 
   @override
-  Future<void> crateFrbApiUpdateExecutionRequest(
-      {required String runId, required FrbExecUpdateRequest req}) {
+  Future<FrbExecDto> crateFrbApisExecutionApiUpdateExecution(
+      {required String runId, required FrbExecUpdate req}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_String(runId, serializer);
-        sse_encode_box_autoadd_frb_exec_update_request(req, serializer);
+        sse_encode_box_autoadd_frb_exec_update(req, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 8, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_unit,
+        decodeSuccessData: sse_decode_frb_exec_dto,
         decodeErrorData: sse_decode_String,
       ),
-      constMeta: kCrateFrbApiUpdateExecutionRequestConstMeta,
+      constMeta: kCrateFrbApisExecutionApiUpdateExecutionConstMeta,
       argValues: [runId, req],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateFrbApiUpdateExecutionRequestConstMeta =>
+  TaskConstMeta get kCrateFrbApisExecutionApiUpdateExecutionConstMeta =>
       const TaskConstMeta(
-        debugName: "update_execution_request",
+        debugName: "update_execution",
         argNames: ["runId", "req"],
       );
-
-  RustArcIncrementStrongCountFnType
-      get rust_arc_increment_strong_count_FrbEventStream => wire
-          .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream;
-
-  RustArcDecrementStrongCountFnType
-      get rust_arc_decrement_strong_count_FrbEventStream => wire
-          .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream;
 
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
@@ -340,19 +328,10 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
-  FrbEventStream
-      dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-          dynamic raw) {
+  RustStreamSink<FrbEventEnvelope> dco_decode_StreamSink_frb_event_envelope_Sse(
+      dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return FrbEventStreamImpl.frbInternalDcoDecode(raw as List<dynamic>);
-  }
-
-  @protected
-  FrbEventStream
-      dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-          dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return FrbEventStreamImpl.frbInternalDcoDecode(raw as List<dynamic>);
+    throw UnimplementedError();
   }
 
   @protected
@@ -362,30 +341,27 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
-  FrbExecUpdateRequest dco_decode_box_autoadd_frb_exec_update_request(
-      dynamic raw) {
+  FrbExecStart dco_decode_box_autoadd_frb_exec_start(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return dco_decode_frb_exec_update_request(raw);
+    return dco_decode_frb_exec_start(raw);
   }
 
   @protected
-  FrbListByStatusRequest dco_decode_box_autoadd_frb_list_by_status_request(
-      dynamic raw) {
+  FrbExecUpdate dco_decode_box_autoadd_frb_exec_update(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return dco_decode_frb_list_by_status_request(raw);
+    return dco_decode_frb_exec_update(raw);
   }
 
   @protected
-  FrbListRequest dco_decode_box_autoadd_frb_list_request(dynamic raw) {
+  FrbPage dco_decode_box_autoadd_frb_page(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return dco_decode_frb_list_request(raw);
+    return dco_decode_frb_page(raw);
   }
 
   @protected
-  FrbStartExecutionRequest dco_decode_box_autoadd_frb_start_execution_request(
-      dynamic raw) {
+  FrbStatusPage dco_decode_box_autoadd_frb_status_page(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return dco_decode_frb_start_execution_request(raw);
+    return dco_decode_frb_status_page(raw);
   }
 
   @protected
@@ -395,69 +371,197 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
-  FrbExecUpdateRequest dco_decode_frb_exec_update_request(dynamic raw) {
+  BigInt dco_decode_box_autoadd_u_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_u_64(raw);
+  }
+
+  @protected
+  FrbEngineEvent dco_decode_frb_engine_event(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    switch (raw[0]) {
+      case 0:
+        return FrbEngineEvent_WorkflowStarted(
+          runId: dco_decode_String(raw[1]),
+        );
+      case 1:
+        return FrbEngineEvent_WorkflowFinished(
+          runId: dco_decode_String(raw[1]),
+          result: dco_decode_String(raw[2]),
+        );
+      case 2:
+        return FrbEngineEvent_NodeEnter(
+          runId: dco_decode_String(raw[1]),
+          stateName: dco_decode_String(raw[2]),
+          input: dco_decode_String(raw[3]),
+        );
+      case 3:
+        return FrbEngineEvent_NodeSuccess(
+          runId: dco_decode_String(raw[1]),
+          stateName: dco_decode_String(raw[2]),
+          output: dco_decode_String(raw[3]),
+        );
+      case 4:
+        return FrbEngineEvent_NodeFailed(
+          runId: dco_decode_String(raw[1]),
+          stateName: dco_decode_String(raw[2]),
+          error: dco_decode_String(raw[3]),
+        );
+      case 5:
+        return FrbEngineEvent_NodeCancelled(
+          runId: dco_decode_String(raw[1]),
+          stateName: dco_decode_String(raw[2]),
+          reason: dco_decode_String(raw[3]),
+        );
+      case 6:
+        return FrbEngineEvent_NodeExit(
+          runId: dco_decode_String(raw[1]),
+          stateName: dco_decode_String(raw[2]),
+          status: dco_decode_String(raw[3]),
+          durationMs: dco_decode_opt_box_autoadd_u_64(raw[4]),
+        );
+      case 7:
+        return FrbEngineEvent_NodeDispatched(
+          runId: dco_decode_String(raw[1]),
+          stateName: dco_decode_String(raw[2]),
+          context: dco_decode_String(raw[3]),
+        );
+      case 8:
+        return FrbEngineEvent_TimerScheduled(
+          runId: dco_decode_String(raw[1]),
+          stateName: dco_decode_String(raw[2]),
+          timestamp: dco_decode_String(raw[3]),
+        );
+      case 9:
+        return FrbEngineEvent_TimerFired(
+          runId: dco_decode_String(raw[1]),
+          stateName: dco_decode_String(raw[2]),
+        );
+      case 10:
+        return FrbEngineEvent_TaskReady(
+          runId: dco_decode_String(raw[1]),
+          stateName: dco_decode_String(raw[2]),
+          resource: dco_decode_String(raw[3]),
+          input: dco_decode_opt_String(raw[4]),
+        );
+      case 11:
+        return FrbEngineEvent_TaskFinished(
+          runId: dco_decode_String(raw[1]),
+          stateName: dco_decode_String(raw[2]),
+          output: dco_decode_String(raw[3]),
+        );
+      case 12:
+        return FrbEngineEvent_SubflowReady(
+          runId: dco_decode_String(raw[1]),
+          parentRunId: dco_decode_String(raw[2]),
+          stateName: dco_decode_String(raw[3]),
+          dsl: dco_decode_String(raw[4]),
+          initCtx: dco_decode_String(raw[5]),
+        );
+      case 13:
+        return FrbEngineEvent_SubflowFinished(
+          parentRunId: dco_decode_String(raw[1]),
+          childRunId: dco_decode_String(raw[2]),
+          stateName: dco_decode_String(raw[3]),
+          result: dco_decode_String(raw[4]),
+        );
+      case 14:
+        return FrbEngineEvent_SubflowFailed(
+          parentRunId: dco_decode_String(raw[1]),
+          childRunId: dco_decode_String(raw[2]),
+          stateName: dco_decode_String(raw[3]),
+          error: dco_decode_String(raw[4]),
+        );
+      case 15:
+        return FrbEngineEvent_UiEventPushed(
+          runId: dco_decode_String(raw[1]),
+          uiEvent: dco_decode_String(raw[2]),
+        );
+      default:
+        throw Exception("unreachable");
+    }
+  }
+
+  @protected
+  FrbEventEnvelope dco_decode_frb_event_envelope(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 2)
-      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
-    return FrbExecUpdateRequest(
-      status: dco_decode_String(arr[0]),
-      resultJson: dco_decode_opt_String(arr[1]),
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return FrbEventEnvelope(
+      eventId: dco_decode_String(arr[0]),
+      timestamp: dco_decode_String(arr[1]),
+      source: dco_decode_String(arr[2]),
+      payload: dco_decode_frb_engine_event(arr[3]),
     );
   }
 
   @protected
-  FrbExecutionResult dco_decode_frb_execution_result(dynamic raw) {
+  FrbExecDto dco_decode_frb_exec_dto(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 6)
       throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
-    return FrbExecutionResult(
+    return FrbExecDto(
       runId: dco_decode_String(arr[0]),
       mode: dco_decode_String(arr[1]),
       status: dco_decode_String(arr[2]),
-      resultJson: dco_decode_opt_String(arr[3]),
+      result: dco_decode_opt_String(arr[3]),
       startedAt: dco_decode_String(arr[4]),
       finishedAt: dco_decode_opt_String(arr[5]),
     );
   }
 
   @protected
-  FrbListByStatusRequest dco_decode_frb_list_by_status_request(dynamic raw) {
+  FrbExecStart dco_decode_frb_exec_start(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 3)
-      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
-    return FrbListByStatusRequest(
-      status: dco_decode_String(arr[0]),
-      limit: dco_decode_opt_box_autoadd_i_64(arr[1]),
-      offset: dco_decode_opt_box_autoadd_i_64(arr[2]),
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    return FrbExecStart(
+      templateId: dco_decode_opt_String(arr[0]),
+      dsl: dco_decode_opt_String(arr[1]),
+      initCtx: dco_decode_opt_String(arr[2]),
+      runId: dco_decode_opt_String(arr[3]),
+      parentRunId: dco_decode_opt_String(arr[4]),
+      parentStateName: dco_decode_opt_String(arr[5]),
     );
   }
 
   @protected
-  FrbListRequest dco_decode_frb_list_request(dynamic raw) {
+  FrbExecUpdate dco_decode_frb_exec_update(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 2)
       throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
-    return FrbListRequest(
+    return FrbExecUpdate(
+      status: dco_decode_String(arr[0]),
+      result: dco_decode_opt_String(arr[1]),
+    );
+  }
+
+  @protected
+  FrbPage dco_decode_frb_page(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return FrbPage(
       limit: dco_decode_opt_box_autoadd_i_64(arr[0]),
       offset: dco_decode_opt_box_autoadd_i_64(arr[1]),
     );
   }
 
   @protected
-  FrbStartExecutionRequest dco_decode_frb_start_execution_request(dynamic raw) {
+  FrbStatusPage dco_decode_frb_status_page(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
-    return FrbStartExecutionRequest(
-      mode: dco_decode_String(arr[0]),
-      templateId: dco_decode_opt_String(arr[1]),
-      dslJson: dco_decode_opt_String(arr[2]),
-      initCtxJson: dco_decode_opt_String(arr[3]),
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return FrbStatusPage(
+      status: dco_decode_String(arr[0]),
+      limit: dco_decode_opt_box_autoadd_i_64(arr[1]),
+      offset: dco_decode_opt_box_autoadd_i_64(arr[2]),
     );
   }
 
@@ -468,9 +572,9 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
-  List<FrbExecutionResult> dco_decode_list_frb_execution_result(dynamic raw) {
+  List<FrbExecDto> dco_decode_list_frb_exec_dto(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return (raw as List<dynamic>).map(dco_decode_frb_execution_result).toList();
+    return (raw as List<dynamic>).map(dco_decode_frb_exec_dto).toList();
   }
 
   @protected
@@ -492,6 +596,18 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
+  BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_u_64(raw);
+  }
+
+  @protected
+  BigInt dco_decode_u_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeU64(raw);
+  }
+
+  @protected
   int dco_decode_u_8(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
@@ -504,12 +620,6 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
-  BigInt dco_decode_usize(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return dcoDecodeU64(raw);
-  }
-
-  @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_String(deserializer);
@@ -517,21 +627,10 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
-  FrbEventStream
-      sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-          SseDeserializer deserializer) {
+  RustStreamSink<FrbEventEnvelope> sse_decode_StreamSink_frb_event_envelope_Sse(
+      SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return FrbEventStreamImpl.frbInternalSseDecode(
-        sse_decode_usize(deserializer), sse_decode_i_32(deserializer));
-  }
-
-  @protected
-  FrbEventStream
-      sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-          SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return FrbEventStreamImpl.frbInternalSseDecode(
-        sse_decode_usize(deserializer), sse_decode_i_32(deserializer));
+    throw UnimplementedError('Unreachable ()');
   }
 
   @protected
@@ -542,31 +641,30 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
-  FrbExecUpdateRequest sse_decode_box_autoadd_frb_exec_update_request(
+  FrbExecStart sse_decode_box_autoadd_frb_exec_start(
       SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return (sse_decode_frb_exec_update_request(deserializer));
+    return (sse_decode_frb_exec_start(deserializer));
   }
 
   @protected
-  FrbListByStatusRequest sse_decode_box_autoadd_frb_list_by_status_request(
+  FrbExecUpdate sse_decode_box_autoadd_frb_exec_update(
       SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return (sse_decode_frb_list_by_status_request(deserializer));
+    return (sse_decode_frb_exec_update(deserializer));
   }
 
   @protected
-  FrbListRequest sse_decode_box_autoadd_frb_list_request(
-      SseDeserializer deserializer) {
+  FrbPage sse_decode_box_autoadd_frb_page(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return (sse_decode_frb_list_request(deserializer));
+    return (sse_decode_frb_page(deserializer));
   }
 
   @protected
-  FrbStartExecutionRequest sse_decode_box_autoadd_frb_start_execution_request(
+  FrbStatusPage sse_decode_box_autoadd_frb_status_page(
       SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return (sse_decode_frb_start_execution_request(deserializer));
+    return (sse_decode_frb_status_page(deserializer));
   }
 
   @protected
@@ -576,65 +674,210 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
-  FrbExecUpdateRequest sse_decode_frb_exec_update_request(
-      SseDeserializer deserializer) {
+  BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_status = sse_decode_String(deserializer);
-    var var_resultJson = sse_decode_opt_String(deserializer);
-    return FrbExecUpdateRequest(status: var_status, resultJson: var_resultJson);
+    return (sse_decode_u_64(deserializer));
   }
 
   @protected
-  FrbExecutionResult sse_decode_frb_execution_result(
-      SseDeserializer deserializer) {
+  FrbEngineEvent sse_decode_frb_engine_event(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var tag_ = sse_decode_i_32(deserializer);
+    switch (tag_) {
+      case 0:
+        var var_runId = sse_decode_String(deserializer);
+        return FrbEngineEvent_WorkflowStarted(runId: var_runId);
+      case 1:
+        var var_runId = sse_decode_String(deserializer);
+        var var_result = sse_decode_String(deserializer);
+        return FrbEngineEvent_WorkflowFinished(
+            runId: var_runId, result: var_result);
+      case 2:
+        var var_runId = sse_decode_String(deserializer);
+        var var_stateName = sse_decode_String(deserializer);
+        var var_input = sse_decode_String(deserializer);
+        return FrbEngineEvent_NodeEnter(
+            runId: var_runId, stateName: var_stateName, input: var_input);
+      case 3:
+        var var_runId = sse_decode_String(deserializer);
+        var var_stateName = sse_decode_String(deserializer);
+        var var_output = sse_decode_String(deserializer);
+        return FrbEngineEvent_NodeSuccess(
+            runId: var_runId, stateName: var_stateName, output: var_output);
+      case 4:
+        var var_runId = sse_decode_String(deserializer);
+        var var_stateName = sse_decode_String(deserializer);
+        var var_error = sse_decode_String(deserializer);
+        return FrbEngineEvent_NodeFailed(
+            runId: var_runId, stateName: var_stateName, error: var_error);
+      case 5:
+        var var_runId = sse_decode_String(deserializer);
+        var var_stateName = sse_decode_String(deserializer);
+        var var_reason = sse_decode_String(deserializer);
+        return FrbEngineEvent_NodeCancelled(
+            runId: var_runId, stateName: var_stateName, reason: var_reason);
+      case 6:
+        var var_runId = sse_decode_String(deserializer);
+        var var_stateName = sse_decode_String(deserializer);
+        var var_status = sse_decode_String(deserializer);
+        var var_durationMs = sse_decode_opt_box_autoadd_u_64(deserializer);
+        return FrbEngineEvent_NodeExit(
+            runId: var_runId,
+            stateName: var_stateName,
+            status: var_status,
+            durationMs: var_durationMs);
+      case 7:
+        var var_runId = sse_decode_String(deserializer);
+        var var_stateName = sse_decode_String(deserializer);
+        var var_context = sse_decode_String(deserializer);
+        return FrbEngineEvent_NodeDispatched(
+            runId: var_runId, stateName: var_stateName, context: var_context);
+      case 8:
+        var var_runId = sse_decode_String(deserializer);
+        var var_stateName = sse_decode_String(deserializer);
+        var var_timestamp = sse_decode_String(deserializer);
+        return FrbEngineEvent_TimerScheduled(
+            runId: var_runId,
+            stateName: var_stateName,
+            timestamp: var_timestamp);
+      case 9:
+        var var_runId = sse_decode_String(deserializer);
+        var var_stateName = sse_decode_String(deserializer);
+        return FrbEngineEvent_TimerFired(
+            runId: var_runId, stateName: var_stateName);
+      case 10:
+        var var_runId = sse_decode_String(deserializer);
+        var var_stateName = sse_decode_String(deserializer);
+        var var_resource = sse_decode_String(deserializer);
+        var var_input = sse_decode_opt_String(deserializer);
+        return FrbEngineEvent_TaskReady(
+            runId: var_runId,
+            stateName: var_stateName,
+            resource: var_resource,
+            input: var_input);
+      case 11:
+        var var_runId = sse_decode_String(deserializer);
+        var var_stateName = sse_decode_String(deserializer);
+        var var_output = sse_decode_String(deserializer);
+        return FrbEngineEvent_TaskFinished(
+            runId: var_runId, stateName: var_stateName, output: var_output);
+      case 12:
+        var var_runId = sse_decode_String(deserializer);
+        var var_parentRunId = sse_decode_String(deserializer);
+        var var_stateName = sse_decode_String(deserializer);
+        var var_dsl = sse_decode_String(deserializer);
+        var var_initCtx = sse_decode_String(deserializer);
+        return FrbEngineEvent_SubflowReady(
+            runId: var_runId,
+            parentRunId: var_parentRunId,
+            stateName: var_stateName,
+            dsl: var_dsl,
+            initCtx: var_initCtx);
+      case 13:
+        var var_parentRunId = sse_decode_String(deserializer);
+        var var_childRunId = sse_decode_String(deserializer);
+        var var_stateName = sse_decode_String(deserializer);
+        var var_result = sse_decode_String(deserializer);
+        return FrbEngineEvent_SubflowFinished(
+            parentRunId: var_parentRunId,
+            childRunId: var_childRunId,
+            stateName: var_stateName,
+            result: var_result);
+      case 14:
+        var var_parentRunId = sse_decode_String(deserializer);
+        var var_childRunId = sse_decode_String(deserializer);
+        var var_stateName = sse_decode_String(deserializer);
+        var var_error = sse_decode_String(deserializer);
+        return FrbEngineEvent_SubflowFailed(
+            parentRunId: var_parentRunId,
+            childRunId: var_childRunId,
+            stateName: var_stateName,
+            error: var_error);
+      case 15:
+        var var_runId = sse_decode_String(deserializer);
+        var var_uiEvent = sse_decode_String(deserializer);
+        return FrbEngineEvent_UiEventPushed(
+            runId: var_runId, uiEvent: var_uiEvent);
+      default:
+        throw UnimplementedError('');
+    }
+  }
+
+  @protected
+  FrbEventEnvelope sse_decode_frb_event_envelope(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_eventId = sse_decode_String(deserializer);
+    var var_timestamp = sse_decode_String(deserializer);
+    var var_source = sse_decode_String(deserializer);
+    var var_payload = sse_decode_frb_engine_event(deserializer);
+    return FrbEventEnvelope(
+        eventId: var_eventId,
+        timestamp: var_timestamp,
+        source: var_source,
+        payload: var_payload);
+  }
+
+  @protected
+  FrbExecDto sse_decode_frb_exec_dto(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_runId = sse_decode_String(deserializer);
     var var_mode = sse_decode_String(deserializer);
     var var_status = sse_decode_String(deserializer);
-    var var_resultJson = sse_decode_opt_String(deserializer);
+    var var_result = sse_decode_opt_String(deserializer);
     var var_startedAt = sse_decode_String(deserializer);
     var var_finishedAt = sse_decode_opt_String(deserializer);
-    return FrbExecutionResult(
+    return FrbExecDto(
         runId: var_runId,
         mode: var_mode,
         status: var_status,
-        resultJson: var_resultJson,
+        result: var_result,
         startedAt: var_startedAt,
         finishedAt: var_finishedAt);
   }
 
   @protected
-  FrbListByStatusRequest sse_decode_frb_list_by_status_request(
-      SseDeserializer deserializer) {
+  FrbExecStart sse_decode_frb_exec_start(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_templateId = sse_decode_opt_String(deserializer);
+    var var_dsl = sse_decode_opt_String(deserializer);
+    var var_initCtx = sse_decode_opt_String(deserializer);
+    var var_runId = sse_decode_opt_String(deserializer);
+    var var_parentRunId = sse_decode_opt_String(deserializer);
+    var var_parentStateName = sse_decode_opt_String(deserializer);
+    return FrbExecStart(
+        templateId: var_templateId,
+        dsl: var_dsl,
+        initCtx: var_initCtx,
+        runId: var_runId,
+        parentRunId: var_parentRunId,
+        parentStateName: var_parentStateName);
+  }
+
+  @protected
+  FrbExecUpdate sse_decode_frb_exec_update(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_status = sse_decode_String(deserializer);
+    var var_result = sse_decode_opt_String(deserializer);
+    return FrbExecUpdate(status: var_status, result: var_result);
+  }
+
+  @protected
+  FrbPage sse_decode_frb_page(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_limit = sse_decode_opt_box_autoadd_i_64(deserializer);
+    var var_offset = sse_decode_opt_box_autoadd_i_64(deserializer);
+    return FrbPage(limit: var_limit, offset: var_offset);
+  }
+
+  @protected
+  FrbStatusPage sse_decode_frb_status_page(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_status = sse_decode_String(deserializer);
     var var_limit = sse_decode_opt_box_autoadd_i_64(deserializer);
     var var_offset = sse_decode_opt_box_autoadd_i_64(deserializer);
-    return FrbListByStatusRequest(
+    return FrbStatusPage(
         status: var_status, limit: var_limit, offset: var_offset);
-  }
-
-  @protected
-  FrbListRequest sse_decode_frb_list_request(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_limit = sse_decode_opt_box_autoadd_i_64(deserializer);
-    var var_offset = sse_decode_opt_box_autoadd_i_64(deserializer);
-    return FrbListRequest(limit: var_limit, offset: var_offset);
-  }
-
-  @protected
-  FrbStartExecutionRequest sse_decode_frb_start_execution_request(
-      SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_mode = sse_decode_String(deserializer);
-    var var_templateId = sse_decode_opt_String(deserializer);
-    var var_dslJson = sse_decode_opt_String(deserializer);
-    var var_initCtxJson = sse_decode_opt_String(deserializer);
-    return FrbStartExecutionRequest(
-        mode: var_mode,
-        templateId: var_templateId,
-        dslJson: var_dslJson,
-        initCtxJson: var_initCtxJson);
   }
 
   @protected
@@ -644,14 +887,13 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
-  List<FrbExecutionResult> sse_decode_list_frb_execution_result(
-      SseDeserializer deserializer) {
+  List<FrbExecDto> sse_decode_list_frb_exec_dto(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     var len_ = sse_decode_i_32(deserializer);
-    var ans_ = <FrbExecutionResult>[];
+    var ans_ = <FrbExecDto>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
-      ans_.add(sse_decode_frb_execution_result(deserializer));
+      ans_.add(sse_decode_frb_exec_dto(deserializer));
     }
     return ans_;
   }
@@ -686,6 +928,23 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
+  BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_u_64(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  BigInt sse_decode_u_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getBigUint64();
+  }
+
+  @protected
   int sse_decode_u_8(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getUint8();
@@ -694,12 +953,6 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   @protected
   void sse_decode_unit(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-  }
-
-  @protected
-  BigInt sse_decode_usize(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getBigUint64();
   }
 
   @protected
@@ -722,22 +975,15 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
-  void
-      sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-          FrbEventStream self, SseSerializer serializer) {
+  void sse_encode_StreamSink_frb_event_envelope_Sse(
+      RustStreamSink<FrbEventEnvelope> self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_usize(
-        (self as FrbEventStreamImpl).frbInternalSseEncode(move: true),
-        serializer);
-  }
-
-  @protected
-  void
-      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFrbEventStream(
-          FrbEventStream self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_usize(
-        (self as FrbEventStreamImpl).frbInternalSseEncode(move: null),
+    sse_encode_String(
+        self.setupAndSerialize(
+            codec: SseCodec(
+          decodeSuccessData: sse_decode_frb_event_envelope,
+          decodeErrorData: sse_decode_AnyhowException,
+        )),
         serializer);
   }
 
@@ -748,31 +994,30 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
-  void sse_encode_box_autoadd_frb_exec_update_request(
-      FrbExecUpdateRequest self, SseSerializer serializer) {
+  void sse_encode_box_autoadd_frb_exec_start(
+      FrbExecStart self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_frb_exec_update_request(self, serializer);
+    sse_encode_frb_exec_start(self, serializer);
   }
 
   @protected
-  void sse_encode_box_autoadd_frb_list_by_status_request(
-      FrbListByStatusRequest self, SseSerializer serializer) {
+  void sse_encode_box_autoadd_frb_exec_update(
+      FrbExecUpdate self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_frb_list_by_status_request(self, serializer);
+    sse_encode_frb_exec_update(self, serializer);
   }
 
   @protected
-  void sse_encode_box_autoadd_frb_list_request(
-      FrbListRequest self, SseSerializer serializer) {
+  void sse_encode_box_autoadd_frb_page(FrbPage self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_frb_list_request(self, serializer);
+    sse_encode_frb_page(self, serializer);
   }
 
   @protected
-  void sse_encode_box_autoadd_frb_start_execution_request(
-      FrbStartExecutionRequest self, SseSerializer serializer) {
+  void sse_encode_box_autoadd_frb_status_page(
+      FrbStatusPage self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_frb_start_execution_request(self, serializer);
+    sse_encode_frb_status_page(self, serializer);
   }
 
   @protected
@@ -783,50 +1028,217 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
-  void sse_encode_frb_exec_update_request(
-      FrbExecUpdateRequest self, SseSerializer serializer) {
+  void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_String(self.status, serializer);
-    sse_encode_opt_String(self.resultJson, serializer);
+    sse_encode_u_64(self, serializer);
   }
 
   @protected
-  void sse_encode_frb_execution_result(
-      FrbExecutionResult self, SseSerializer serializer) {
+  void sse_encode_frb_engine_event(
+      FrbEngineEvent self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    switch (self) {
+      case FrbEngineEvent_WorkflowStarted(runId: final runId):
+        sse_encode_i_32(0, serializer);
+        sse_encode_String(runId, serializer);
+      case FrbEngineEvent_WorkflowFinished(
+          runId: final runId,
+          result: final result
+        ):
+        sse_encode_i_32(1, serializer);
+        sse_encode_String(runId, serializer);
+        sse_encode_String(result, serializer);
+      case FrbEngineEvent_NodeEnter(
+          runId: final runId,
+          stateName: final stateName,
+          input: final input
+        ):
+        sse_encode_i_32(2, serializer);
+        sse_encode_String(runId, serializer);
+        sse_encode_String(stateName, serializer);
+        sse_encode_String(input, serializer);
+      case FrbEngineEvent_NodeSuccess(
+          runId: final runId,
+          stateName: final stateName,
+          output: final output
+        ):
+        sse_encode_i_32(3, serializer);
+        sse_encode_String(runId, serializer);
+        sse_encode_String(stateName, serializer);
+        sse_encode_String(output, serializer);
+      case FrbEngineEvent_NodeFailed(
+          runId: final runId,
+          stateName: final stateName,
+          error: final error
+        ):
+        sse_encode_i_32(4, serializer);
+        sse_encode_String(runId, serializer);
+        sse_encode_String(stateName, serializer);
+        sse_encode_String(error, serializer);
+      case FrbEngineEvent_NodeCancelled(
+          runId: final runId,
+          stateName: final stateName,
+          reason: final reason
+        ):
+        sse_encode_i_32(5, serializer);
+        sse_encode_String(runId, serializer);
+        sse_encode_String(stateName, serializer);
+        sse_encode_String(reason, serializer);
+      case FrbEngineEvent_NodeExit(
+          runId: final runId,
+          stateName: final stateName,
+          status: final status,
+          durationMs: final durationMs
+        ):
+        sse_encode_i_32(6, serializer);
+        sse_encode_String(runId, serializer);
+        sse_encode_String(stateName, serializer);
+        sse_encode_String(status, serializer);
+        sse_encode_opt_box_autoadd_u_64(durationMs, serializer);
+      case FrbEngineEvent_NodeDispatched(
+          runId: final runId,
+          stateName: final stateName,
+          context: final context
+        ):
+        sse_encode_i_32(7, serializer);
+        sse_encode_String(runId, serializer);
+        sse_encode_String(stateName, serializer);
+        sse_encode_String(context, serializer);
+      case FrbEngineEvent_TimerScheduled(
+          runId: final runId,
+          stateName: final stateName,
+          timestamp: final timestamp
+        ):
+        sse_encode_i_32(8, serializer);
+        sse_encode_String(runId, serializer);
+        sse_encode_String(stateName, serializer);
+        sse_encode_String(timestamp, serializer);
+      case FrbEngineEvent_TimerFired(
+          runId: final runId,
+          stateName: final stateName
+        ):
+        sse_encode_i_32(9, serializer);
+        sse_encode_String(runId, serializer);
+        sse_encode_String(stateName, serializer);
+      case FrbEngineEvent_TaskReady(
+          runId: final runId,
+          stateName: final stateName,
+          resource: final resource,
+          input: final input
+        ):
+        sse_encode_i_32(10, serializer);
+        sse_encode_String(runId, serializer);
+        sse_encode_String(stateName, serializer);
+        sse_encode_String(resource, serializer);
+        sse_encode_opt_String(input, serializer);
+      case FrbEngineEvent_TaskFinished(
+          runId: final runId,
+          stateName: final stateName,
+          output: final output
+        ):
+        sse_encode_i_32(11, serializer);
+        sse_encode_String(runId, serializer);
+        sse_encode_String(stateName, serializer);
+        sse_encode_String(output, serializer);
+      case FrbEngineEvent_SubflowReady(
+          runId: final runId,
+          parentRunId: final parentRunId,
+          stateName: final stateName,
+          dsl: final dsl,
+          initCtx: final initCtx
+        ):
+        sse_encode_i_32(12, serializer);
+        sse_encode_String(runId, serializer);
+        sse_encode_String(parentRunId, serializer);
+        sse_encode_String(stateName, serializer);
+        sse_encode_String(dsl, serializer);
+        sse_encode_String(initCtx, serializer);
+      case FrbEngineEvent_SubflowFinished(
+          parentRunId: final parentRunId,
+          childRunId: final childRunId,
+          stateName: final stateName,
+          result: final result
+        ):
+        sse_encode_i_32(13, serializer);
+        sse_encode_String(parentRunId, serializer);
+        sse_encode_String(childRunId, serializer);
+        sse_encode_String(stateName, serializer);
+        sse_encode_String(result, serializer);
+      case FrbEngineEvent_SubflowFailed(
+          parentRunId: final parentRunId,
+          childRunId: final childRunId,
+          stateName: final stateName,
+          error: final error
+        ):
+        sse_encode_i_32(14, serializer);
+        sse_encode_String(parentRunId, serializer);
+        sse_encode_String(childRunId, serializer);
+        sse_encode_String(stateName, serializer);
+        sse_encode_String(error, serializer);
+      case FrbEngineEvent_UiEventPushed(
+          runId: final runId,
+          uiEvent: final uiEvent
+        ):
+        sse_encode_i_32(15, serializer);
+        sse_encode_String(runId, serializer);
+        sse_encode_String(uiEvent, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_frb_event_envelope(
+      FrbEventEnvelope self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.eventId, serializer);
+    sse_encode_String(self.timestamp, serializer);
+    sse_encode_String(self.source, serializer);
+    sse_encode_frb_engine_event(self.payload, serializer);
+  }
+
+  @protected
+  void sse_encode_frb_exec_dto(FrbExecDto self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.runId, serializer);
     sse_encode_String(self.mode, serializer);
     sse_encode_String(self.status, serializer);
-    sse_encode_opt_String(self.resultJson, serializer);
+    sse_encode_opt_String(self.result, serializer);
     sse_encode_String(self.startedAt, serializer);
     sse_encode_opt_String(self.finishedAt, serializer);
   }
 
   @protected
-  void sse_encode_frb_list_by_status_request(
-      FrbListByStatusRequest self, SseSerializer serializer) {
+  void sse_encode_frb_exec_start(FrbExecStart self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_opt_String(self.templateId, serializer);
+    sse_encode_opt_String(self.dsl, serializer);
+    sse_encode_opt_String(self.initCtx, serializer);
+    sse_encode_opt_String(self.runId, serializer);
+    sse_encode_opt_String(self.parentRunId, serializer);
+    sse_encode_opt_String(self.parentStateName, serializer);
+  }
+
+  @protected
+  void sse_encode_frb_exec_update(
+      FrbExecUpdate self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.status, serializer);
+    sse_encode_opt_String(self.result, serializer);
+  }
+
+  @protected
+  void sse_encode_frb_page(FrbPage self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_opt_box_autoadd_i_64(self.limit, serializer);
+    sse_encode_opt_box_autoadd_i_64(self.offset, serializer);
+  }
+
+  @protected
+  void sse_encode_frb_status_page(
+      FrbStatusPage self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.status, serializer);
     sse_encode_opt_box_autoadd_i_64(self.limit, serializer);
     sse_encode_opt_box_autoadd_i_64(self.offset, serializer);
-  }
-
-  @protected
-  void sse_encode_frb_list_request(
-      FrbListRequest self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_opt_box_autoadd_i_64(self.limit, serializer);
-    sse_encode_opt_box_autoadd_i_64(self.offset, serializer);
-  }
-
-  @protected
-  void sse_encode_frb_start_execution_request(
-      FrbStartExecutionRequest self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_String(self.mode, serializer);
-    sse_encode_opt_String(self.templateId, serializer);
-    sse_encode_opt_String(self.dslJson, serializer);
-    sse_encode_opt_String(self.initCtxJson, serializer);
   }
 
   @protected
@@ -836,12 +1248,12 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
-  void sse_encode_list_frb_execution_result(
-      List<FrbExecutionResult> self, SseSerializer serializer) {
+  void sse_encode_list_frb_exec_dto(
+      List<FrbExecDto> self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
-      sse_encode_frb_execution_result(item, serializer);
+      sse_encode_frb_exec_dto(item, serializer);
     }
   }
 
@@ -875,6 +1287,22 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_u_64(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_u_64(BigInt self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putBigUint64(self);
+  }
+
+  @protected
   void sse_encode_u_8(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putUint8(self);
@@ -883,12 +1311,6 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
   @protected
   void sse_encode_unit(void self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-  }
-
-  @protected
-  void sse_encode_usize(BigInt self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putBigUint64(self);
   }
 
   @protected
@@ -902,24 +1324,4 @@ class StepflowApiApiImpl extends StepflowApiApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putUint8(self ? 1 : 0);
   }
-}
-
-@sealed
-class FrbEventStreamImpl extends RustOpaque implements FrbEventStream {
-  // Not to be used by end users
-  FrbEventStreamImpl.frbInternalDcoDecode(List<dynamic> wire)
-      : super.frbInternalDcoDecode(wire, _kStaticData);
-
-  // Not to be used by end users
-  FrbEventStreamImpl.frbInternalSseDecode(BigInt ptr, int externalSizeOnNative)
-      : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
-
-  static final _kStaticData = RustArcStaticData(
-    rustArcIncrementStrongCount:
-        StepflowApi.instance.api.rust_arc_increment_strong_count_FrbEventStream,
-    rustArcDecrementStrongCount:
-        StepflowApi.instance.api.rust_arc_decrement_strong_count_FrbEventStream,
-    rustArcDecrementStrongCountPtr: StepflowApi
-        .instance.api.rust_arc_decrement_strong_count_FrbEventStreamPtr,
-  );
 }

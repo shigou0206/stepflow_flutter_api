@@ -3,8 +3,10 @@
 
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
-import 'frb_generated.dart';
+import '../frb_dto/frb_engine_event.dart';
+import '../frb_dto/frb_event_envelope.dart';
+import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-/// Flutter 初始化 Stepflow 引擎（包括日志、状态、事件分发器等）
-Future<void> initStepflow() => StepflowApi.instance.api.crateInitInitStepflow();
+Stream<FrbEventEnvelope> startEventStream() =>
+    StepflowApi.instance.api.crateFrbApisEventStreamStartEventStream();
